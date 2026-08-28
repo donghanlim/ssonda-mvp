@@ -1,0 +1,33 @@
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+from urllib.parse import parse_qs, urlparse
+from subprocess import run, PIPE
+import os
+
+ROOT = Path(__file__).parent
+class Handler(SimpleHTTPRequestHandler):
+    def translate_path(self, path):
+        return str(ROOT / path.lstrip('/').split('?')[0])
+    def do_GET(self):
+        parsed = urlparse(self.path)
+        if parsed.path == '/qr':
+            value = parse_qs(parsed.query).get('data', [''])[0]
+            if not value or len(value) > 1800:
+                self.send_error(400, 'QR data is missing or too long')
+                return
+            output = run(['node', str(ROOT / 'qr.cjs'), value], cwd=ROOT, stdout=PIPE, stderr=PIPE, text=True, timeout=10)
+            if output.returncode:
+                self.send_error(500, output.stderr[:200])
+                return
+            body = output.stdout.encode()
+            self.send_response(200)
+            self.send_header('Content-Type', 'image/svg+xml; charset=utf-8')
+            self.send_header('Cache-Control', 'no-store')
+            self.send_header('Content-Length', str(len(body)))
+            self.end_headers(); self.wfile.write(body); return
+        return super().do_GET()
+
+if __name__ == '__main__':
+    os.chdir(ROOT)
+    print('SSONDA MVP: http://127.0.0.1:4173')
+    ThreadingHTTPServer(('127.0.0.1', 4173), Handler).serve_forever()

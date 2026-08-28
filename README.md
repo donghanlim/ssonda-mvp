@@ -31,7 +31,7 @@ cd "/Users/justimmacbook/Documents/쏜다/ssonda-mvp"
 python3 server.py
 ```
 
-브라우저에서 `http://127.0.0.1:4174`을 여세요. 서버를 종료하려면 터미널에서 `Ctrl+C`를 누릅니다.
+터미널에 표시된 `SSONDA MVP local` 주소를 브라우저에서 여세요. 기본은 4174이며, 사용 중이면 자동으로 다음 빈 포트를 선택합니다. 서버를 종료하려면 터미널에서 `Ctrl+C`를 누릅니다.
 
 ## 테스트
 

@@ -24,7 +24,7 @@ function save(event, detail){ if(event) state.audit.unshift({at:new Date().toISO
 function toast(message){const node=document.createElement('div');node.className='toast';node.textContent=message;document.body.append(node);setTimeout(()=>node.remove(),1800)}
 function encode(data){return btoa(unescape(encodeURIComponent(JSON.stringify(data))));}
 function decode(value){try{return JSON.parse(decodeURIComponent(escape(atob(value))))}catch{return null}}
-function paymentLink(expected){ const payload={v:1,s:state.store.name,b:state.store.bank,a:state.store.account,h:state.store.accountHolder,n:expected.customerName,m:expected.amount,c:expected.code,id:expected.id}; return `${serviceBase()}?pay=${encode(payload)}`; }
+function paymentLink(expected){ const payload={v:1,s:state.store.name,b:state.store.bank,a:state.store.account,h:state.store.accountHolder,n:expected.customerName,m:expected.amount,c:expected.code,id:expected.id}; return `${serviceBase()}?pay=${encodeURIComponent(encode(payload))}`; }
 function getPayment(){return new URLSearchParams(location.search).get('pay');}
 function badge(status){const map={candidate:['후보','ok'],review:['검토 필요','warn'],unmatched:['미매칭','bad'],confirmed:['확정','ok'],held:['보류','warn'],excluded:['제외','bad']};const [label,kind]=map[status]||[status,''];return `<span class="badge ${kind}">${label}</span>`}
 function header(){return `<header class="brand"><div class="stamp">쏜다</div><div><h1>쏜다 <small class="muted">베타</small></h1><div class="sub">계좌이체 입금 대조·정산 확인 도구</div></div></header>`}

@@ -30,12 +30,13 @@ class Handler(SimpleHTTPRequestHandler):
 
 if __name__ == '__main__':
     os.chdir(ROOT)
+    port = int(os.environ.get('PORT', '4174'))
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as probe:
         try:
             probe.connect(('8.8.8.8', 80))
             local_ip = probe.getsockname()[0]
         except OSError:
             local_ip = 'your-mac-local-ip'
-    print('SSONDA MVP local: http://127.0.0.1:4173')
-    print(f'Same Wi-Fi phone test: http://{local_ip}:4173')
-    ThreadingHTTPServer(('0.0.0.0', 4173), Handler).serve_forever()
+    print(f'SSONDA MVP local: http://127.0.0.1:{port}')
+    print(f'Same Wi-Fi phone test: http://{local_ip}:{port}')
+    ThreadingHTTPServer(('0.0.0.0', port), Handler).serve_forever()

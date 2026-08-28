@@ -31,7 +31,7 @@ cd "/Users/justimmacbook/Documents/쏜다/ssonda-mvp"
 python3 server.py
 ```
 
-브라우저에서 `http://127.0.0.1:4173`을 여세요. 서버를 종료하려면 터미널에서 `Ctrl+C`를 누릅니다.
+브라우저에서 `http://127.0.0.1:4174`을 여세요. 서버를 종료하려면 터미널에서 `Ctrl+C`를 누릅니다.
 
 ## 테스트
 

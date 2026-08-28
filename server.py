@@ -3,6 +3,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 from subprocess import run, PIPE
 import os
+import socket
 
 ROOT = Path(__file__).parent
 class Handler(SimpleHTTPRequestHandler):
@@ -29,5 +30,12 @@ class Handler(SimpleHTTPRequestHandler):
 
 if __name__ == '__main__':
     os.chdir(ROOT)
-    print('SSONDA MVP: http://127.0.0.1:4173')
-    ThreadingHTTPServer(('127.0.0.1', 4173), Handler).serve_forever()
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as probe:
+        try:
+            probe.connect(('8.8.8.8', 80))
+            local_ip = probe.getsockname()[0]
+        except OSError:
+            local_ip = 'your-mac-local-ip'
+    print('SSONDA MVP local: http://127.0.0.1:4173')
+    print(f'Same Wi-Fi phone test: http://{local_ip}:4173')
+    ThreadingHTTPServer(('0.0.0.0', 4173), Handler).serve_forever()

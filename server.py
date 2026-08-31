@@ -7,12 +7,34 @@ import socket
 
 ROOT = Path(__file__).parent
 
+def local_ip():
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as probe:
+        try:
+            probe.connect(('8.8.8.8', 80))
+            return probe.getsockname()[0]
+        except OSError:
+            return '127.0.0.1'
+
+
 class Handler(SimpleHTTPRequestHandler):
+    def end_headers(self):
+        self.send_header('Cache-Control', 'no-store, max-age=0')
+        super().end_headers()
+
     def translate_path(self, path):
         return str(ROOT / path.lstrip('/').split('?')[0])
 
     def do_GET(self):
         parsed = urlparse(self.path)
+        if parsed.path == '/meta':
+            body = ('{\"localUrl\": \"http://' + local_ip() + ':' + str(self.server.server_address[1]) + '\"}').encode()
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Cache-Control', 'no-store')
+            self.send_header('Content-Length', str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
         if parsed.path == '/qr':
             value = parse_qs(parsed.query).get('data', [''])[0]
             if not value or len(value) > 1800:
@@ -50,12 +72,7 @@ def start_server():
 if __name__ == '__main__':
     os.chdir(ROOT)
     server, port = start_server()
-    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as probe:
-        try:
-            probe.connect(('8.8.8.8', 80))
-            local_ip = probe.getsockname()[0]
-        except OSError:
-            local_ip = 'your-mac-local-ip'
+    local_ip_address = local_ip()
     print(f'SSONDA MVP local: http://127.0.0.1:{port}')
-    print(f'Same Wi-Fi phone test: http://{local_ip}:{port}')
+    print(f'Same Wi-Fi phone test: http://{local_ip_address}:{port}')
     server.serve_forever()

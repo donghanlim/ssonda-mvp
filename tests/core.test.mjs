@@ -22,3 +22,15 @@ test('offers a candidate only where code, name, amount and time agree', () => {
   assert.equal(reconcile(expected,deposits).results[0].best.status,'candidate');
   assert.equal(reconcile(expected,[{...deposits[0],amount:36000}]).results[0].best.status,'review');
 });
+
+test('parsing works without secure-context crypto', () => {
+  const original = globalThis.crypto;
+  Object.defineProperty(globalThis, 'crypto', { value: undefined, configurable: true });
+  try {
+    const { rows } = parseStatementText('2026-08-28 14:03,홍길동843,35000,1035000');
+    assert.equal(rows.length, 1);
+    assert.match(rows[0].id, /-/);
+  } finally {
+    Object.defineProperty(globalThis, 'crypto', { value: original, configurable: true });
+  }
+});

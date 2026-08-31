@@ -1,5 +1,7 @@
 export const JITTER = 10;
 
+function newId() { return globalThis.crypto?.randomUUID?.() || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 11)}`; }
+
 export function shotCodeAt(date = new Date(), jitter = Math.floor(Math.random() * JITTER)) {
   if (!(date instanceof Date) || Number.isNaN(date.valueOf())) throw new Error('유효한 발급 시각이 필요합니다.');
   if (!Number.isInteger(jitter) || jitter < 0 || jitter >= JITTER) throw new Error(`지터는 0~${JITTER - 1} 정수여야 합니다.`);
@@ -53,7 +55,7 @@ export function parseStatementText(text) {
     const time = cells[timeIndex >= 0 ? timeIndex : (fallback ? 0 : 2)] || '';
     const balance = toMoney(cells[balanceIndex >= 0 ? balanceIndex : (fallback ? 3 : 3)]);
     if (!sender || amount <= 0) { rejected.push({ line: index + (hasHeader ? 2 : 1), reason: '입금자명 또는 양수 금액이 없습니다.' }); return; }
-    rows.push({ id: crypto.randomUUID(), sender, amount, time, balance: balance || null, source: 'paste' });
+    rows.push({ id: newId(), sender, amount, time, balance: balance || null, source: 'paste' });
   });
   return { rows, rejected };
 }
